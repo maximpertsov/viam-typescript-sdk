@@ -1,0 +1,19 @@
+{
+  "name": "@viamrobotics/sdk-ts-connectivity-test-app",
+  "version": "0.0.1",
+  "description": "Viam SDK Connectivity Test App",
+  "type": "module",
+  "scripts": {
+    "start": "esbuild ./src/main.ts --bundle --outfile=static/main.js --servedir=static",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "esbuild": "0.16.12"
+  },
+  "dependencies": {
+    "@viamrobotics/sdk": "^0.0.47"
+  }
+}

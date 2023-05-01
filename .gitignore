@@ -111,3 +111,11 @@ bin/
 
 # typedoc documentation
 docs/dist
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# rdk e2e server
+/test-rdk

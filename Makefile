@@ -23,6 +23,12 @@ clean: clean-js clean-buf clean-docs
 test: $(node_modules) build-buf
 	npm run test
 
+.PHONY: test-e2e
+test-e2e: $(node_modules) build-buf test-rdk
+
+test-rdk:
+	git clone --depth=1 https://github.com/viamrobotics/rdk.git test-rdk
+
 .PHONY: lint
 lint: $(node_modules) build-buf
 	npm run lint
