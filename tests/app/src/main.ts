@@ -7,11 +7,19 @@ async function connect() {
   return VIAM.createRobotClient({ host, signalingAddress });
 }
 
+function value() {
+  return <HTMLParagraphElement>document.getElementById('value');
+}
+
 async function main() {
+  console.log("connecting...");
   const client = await connect();
+  console.log("connected");
   const armClient = new VIAM.ArmClient(client, 'arm1');
 
-  console.log(armClient.isMoving());
+  const result = await armClient.isMoving();
+  console.log(result);
+  value().textContent = (result) ? 'Y' : 'N';
 }
 
 main();
