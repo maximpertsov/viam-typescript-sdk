@@ -331,14 +331,22 @@ export class RobotClient implements Robot {
           opts
         );
 
+        webRTCConn.peerConnection.onconnectionstatechange = (event: Event) => {
+          console.debug('connection changed', event);
+        };
+        webRTCConn.peerConnection.ondatachannel = (event: Event) => {
+          console.debug('got data channel', event);
+        };
+
         /*
          * Lint disabled because we know that we are the only code to
          * read and then write to 'peerConn', even after we have awaited/paused.
          */
-        this.peerConn = webRTCConn.peerConnection; // eslint-disable-line require-atomic-updates
+        this.peerConn = webRTCConn.peerConnection;
         this.transportFactory = webRTCConn.transportFactory;
 
         webRTCConn.peerConnection.ontrack = (event) => {
+          console.debug('got track', event);
           const [eventStream] = event.streams;
           if (!eventStream) {
             events.emit('track', event);
