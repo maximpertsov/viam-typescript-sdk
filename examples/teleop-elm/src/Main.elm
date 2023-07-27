@@ -4,6 +4,7 @@ import Browser
 import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as At
+import Html.Events as Ev
 import Json.Decode as D
 import Json.Encode as E
 import Keyboard
@@ -31,6 +32,9 @@ port getAccelReading : () -> Cmd msg
 
 
 port recvAccelReading : (E.Value -> msg) -> Sub msg
+
+
+port addConnection : () -> Cmd msg
 
 
 
@@ -99,6 +103,7 @@ type Msg
     | GotWifi E.Value
     | GetAcceleration
     | GotAcceleration E.Value
+    | AddConnection
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -132,6 +137,9 @@ update msg model =
 
                 Ok accel ->
                     ( { model | acceleration = accel }, Cmd.none )
+
+        AddConnection ->
+            ( model, addConnection () )
 
 
 handleBaseSetPower : List Keyboard.Key -> Cmd none
@@ -196,6 +204,7 @@ view model =
         , At.style "row-gap" "0.5rem"
         ]
         [ H.h2 [] <| [ H.text "Demo" ]
+        , H.button [ Ev.onClick AddConnection ] [ H.text "Add Connection" ]
         , viewHUD model
         ]
 
@@ -365,6 +374,7 @@ viewStreams =
     H.div
         [ --flex
           At.style "display" "flex"
+        , At.style "flex-direction" "column"
         , At.style "justify-content" "center"
         , At.style "align-items" "center"
 
@@ -372,12 +382,10 @@ viewStreams =
         , At.style "top" "0"
         , At.style "position" "absolute"
         ]
-        [ -- Camera stream inserted here
-          H.div
-            [ At.attribute "data-stream" "cam"
-            ]
-            []
-        ]
+        (List.map
+            (\n -> H.div [ At.attribute "data-stream" ("cam" ++ String.fromInt n) ] [])
+            (List.range 1 10)
+        )
 
 
 viewMovementControls : Model -> H.Html Msg

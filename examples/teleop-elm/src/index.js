@@ -17,16 +17,14 @@ async function connectWebRTC() {
   });
 }
 
-function onTrack(event) {
+const onTrack = (name) => (event) => {
   const eventStream = event.streams[0];
   if (!eventStream) {
     throw new Error('expected event stream to exist');
   }
 
   const streamName = eventStream.id;
-  const streamContainers = document.querySelectorAll(
-    `[data-stream="${streamName}"]`
-  );
+  const streamContainers = document.querySelectorAll(`[data-stream="${name}"]`);
 
   // Most of this logic is a hack that to inject a WebRTC stream into the DOM.
   // Elm does not support media elements so we have to do it here.
@@ -45,25 +43,28 @@ function onTrack(event) {
     streamContainer.querySelector('video')?.remove();
     streamContainer.append(mediaElement);
   }
-}
+};
 
 // Connect and setup app
 
+const app = Elm.Main.init({
+  node: document.getElementById('main'),
+  flags: {},
+});
+
+let connectionCount = 0;
+
 connectWebRTC()
   .then((client) => {
+    connectionCount++;
+
     const base = new VIAM.BaseClient(client, 'viam_base');
     const wifi = new VIAM.SensorClient(client, 'wifi');
-    const accel = new VIAM.MovementSensorClient(client, 'accelerometer');
-
-    const app = Elm.Main.init({
-      node: document.getElementById('main'),
-      flags: {},
-    });
 
     // streams
 
     const streams = new VIAM.StreamClient(client);
-    streams.on('track', onTrack);
+    streams.on('track', onTrack(`cam${connectionCount}`));
 
     app.ports.sendBaseSetPower.subscribe(async ({ linear, angular }) => {
       const linearVec = { x: 0, y: linear, z: 0 };
@@ -81,9 +82,24 @@ connectWebRTC()
       app.ports.recvWifiReading.send(readings);
     });
 
-    app.ports.getAccelReading.subscribe(async () => {
-      const readings = await accel.getLinearAcceleration();
-      app.ports.recvAccelReading.send(readings);
+    const addConnection = async () =>
+      connectWebRTC()
+        .then((client) => {
+          connectionCount++;
+          // streams
+
+          const streams = new VIAM.StreamClient(client);
+          streams.on('track', onTrack(`cam${connectionCount}`));
+
+          streams.add('cam');
+        })
+        .catch((err) => {
+          console.error('something went wrong');
+          console.error(err);
+        });
+
+    app.ports.addConnection.subscribe(async () => {
+      await addConnection();
     });
 
     // Add stream from camera
