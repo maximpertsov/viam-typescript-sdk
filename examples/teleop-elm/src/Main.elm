@@ -231,7 +231,7 @@ viewHUD model =
         [ viewWifiSignal model
         , viewStreams
         , viewMovementControls model
-        , viewAcceleration model
+        -- , viewAcceleration model
         ]
 
 
@@ -372,19 +372,25 @@ statsColor =
 viewStreams : H.Html Msg
 viewStreams =
     H.div
-        [ --flex
-          At.style "display" "flex"
-        , At.style "flex-direction" "column"
-        , At.style "justify-content" "center"
-        , At.style "align-items" "center"
+        [ -- grid
+          At.style "display" "grid"
+        , At.style "grid-template-columns" "repeat(auto-fill, minmax(50px, 1fr))"
+        , At.style "gap" "1rem"
 
-        -- overlay
-        , At.style "top" "0"
+        -- fit to parent
+        , At.style "width" "100%"
+
+        -- Overlay
+        , At.style "top" "50px"
         , At.style "position" "absolute"
         ]
         (List.map
-            (\n -> H.div [ At.attribute "data-stream" ("cam" ++ String.fromInt n) ] [])
-            (List.range 1 10)
+            (\n ->
+                H.div
+                    [ At.attribute "data-stream" ("cam" ++ String.fromInt n) ]
+                    []
+            )
+            (List.range 1 100)
         )
 
 

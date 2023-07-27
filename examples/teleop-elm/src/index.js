@@ -36,6 +36,7 @@ const onTrack = (name) => (event) => {
       mediaElement.playsInline = true;
       mediaElement.controls = false;
       mediaElement.muted = true;
+      mediaElement.width = 50;
     } else {
       mediaElement.controls = true;
     }
@@ -86,6 +87,8 @@ connectWebRTC()
       connectWebRTC()
         .then((client) => {
           connectionCount++;
+          console.debug(`${connectionCount} active connections`);
+
           // streams
 
           const streams = new VIAM.StreamClient(client);
