@@ -37,6 +37,9 @@ port recvAccelReading : (E.Value -> msg) -> Sub msg
 port addConnection : () -> Cmd msg
 
 
+port recvConnectionCount : (Int -> msg) -> Sub msg
+
+
 
 -- PROGRAM
 
@@ -56,6 +59,7 @@ init _ =
     ( { keys = []
       , signalLevels = Dict.empty
       , acceleration = { x = 0, y = 0, z = 0 }
+      , connections = 0
       }
     , Cmd.none
     )
@@ -69,6 +73,7 @@ type alias Model =
     { keys : List Keyboard.Key
     , signalLevels : Dict String Float
     , acceleration : Acceleration
+    , connections : Int
     }
 
 
@@ -104,6 +109,7 @@ type Msg
     | GetAcceleration
     | GotAcceleration E.Value
     | AddConnection
+    | GotConnectionCount Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -140,6 +146,9 @@ update msg model =
 
         AddConnection ->
             ( model, addConnection () )
+
+        GotConnectionCount count ->
+            ( { model | connections = count }, Cmd.none )
 
 
 handleBaseSetPower : List Keyboard.Key -> Cmd none
@@ -186,6 +195,7 @@ subscriptions _ =
         , Time.every 1000 (\_ -> GetAcceleration)
         , recvAccelReading GotAcceleration
         , Sub.map KeyMsg Keyboard.subscriptions
+        , recvConnectionCount GotConnectionCount
         ]
 
 
@@ -204,6 +214,7 @@ view model =
         , At.style "row-gap" "0.5rem"
         ]
         [ H.h2 [] <| [ H.text "Demo" ]
+        , H.text <| "Active connections: " ++ String.fromInt model.connections
         , H.button [ Ev.onClick AddConnection ] [ H.text "Add Connection" ]
         , viewHUD model
         ]
@@ -231,6 +242,7 @@ viewHUD model =
         [ viewWifiSignal model
         , viewStreams
         , viewMovementControls model
+
         -- , viewAcceleration model
         ]
 
@@ -387,10 +399,14 @@ viewStreams =
         (List.map
             (\n ->
                 H.div
-                    [ At.attribute "data-stream" ("cam" ++ String.fromInt n) ]
+                    [ At.attribute "data-stream" ("cam" ++ String.fromInt n)
+                    , At.style "width" "50px"
+                    , At.style "height" "36px"
+                    , At.style "outline" "1px dashed black"
+                    ]
                     []
             )
-            (List.range 1 100)
+            (List.range 1 36)
         )
 
 

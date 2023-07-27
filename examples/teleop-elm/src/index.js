@@ -58,6 +58,7 @@ let connectionCount = 0;
 connectWebRTC()
   .then((client) => {
     connectionCount++;
+    app.ports.recvConnectionCount.send(connectionCount);
 
     const base = new VIAM.BaseClient(client, 'viam_base');
     const wifi = new VIAM.SensorClient(client, 'wifi');
@@ -87,7 +88,7 @@ connectWebRTC()
       connectWebRTC()
         .then((client) => {
           connectionCount++;
-          console.debug(`${connectionCount} active connections`);
+          app.ports.recvConnectionCount.send(connectionCount);
 
           // streams
 
